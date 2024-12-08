@@ -3,7 +3,7 @@ locals {
 
   rg_name    = terraform.workspace == "default" ? "${var.rg_name}" : "${var.rg_name}-${local.workspace_suffix}"
   sa_name    = terraform.workspace == "default" ? "${var.sa_name}" : "${var.sa_name}${local.workspace_suffix}"
-  web_suffix = "<h1>${terraform.workspace}</h1>"
+  web_suffix = "<h2>${terraform.workspace}</h2>"
 }
 
 resource "random_string" "random_string" {
