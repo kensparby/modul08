@@ -49,6 +49,17 @@ on:
     branches: [ "main" ]
   pull_request:
 
+  workflow_dispatch:
+    inputs:
+      action_type:
+        description: 'What action should be performed?'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+        - apply
+        - destroy
+
 permissions:
   contents: read
 
@@ -66,7 +77,7 @@ jobs:
     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
-        shell: bash
+        shell: bash 
 
     steps:
     # Checkout the repository to the GitHub Actions runner
@@ -102,7 +113,6 @@ jobs:
       # On push to "main", build or change infrastructure according to Terraform configuration files
       # Note: It is recommended to set up a required "strict" status check in your repository for "Terraform Cloud". See the documentation on "strict" required status checks for more information: https://help.github.com/en/github/administering-a-repository/types-of-required-status-checks
     - name: Terraform Apply
-
       env:
         TF_VAR_subscription_id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
         TF_VAR_client_id: ${{ secrets.ARM_CLIENT_ID }}
@@ -110,3 +120,7 @@ jobs:
         TF_VAR_tenant_id: ${{ secrets.ARM_TENANT_ID }}
       if: github.ref == 'refs/heads/main' && github.event_name == 'push'
       run: terraform apply -auto-approve -input=false tfplan
+
+    - name: Terraform Destroy
+      if: github.event.inputs.action_type == 'destroy'
+      run: terraform destroy -auto-approve -input=false
